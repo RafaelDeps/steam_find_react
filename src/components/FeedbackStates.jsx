@@ -6,13 +6,13 @@ import React from 'react';
 export function LoadingSkeleton() {
   return (
     <div className="w-full max-w-[400px] h-[520px] rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/50 dark:border-slate-800/50 shadow-xl flex flex-col items-center justify-center p-8 gap-5 animate-pulse">
-      <div className="w-20 h-20 bg-slate-200 dark:bg-slate-850 rounded-full" />
-      <div className="w-3/4 h-6 bg-slate-200 dark:bg-slate-850 rounded-lg" />
-      <div className="w-1/2 h-4 bg-slate-200 dark:bg-slate-850 rounded-lg" />
-      <div className="w-full h-24 bg-slate-200 dark:bg-slate-850 rounded-2xl mt-4" />
+      <div className="w-20 h-20 bg-slate-200 dark:bg-slate-800 rounded-full" />
+      <div className="w-3/4 h-6 bg-slate-200 dark:bg-slate-800 rounded-lg" />
+      <div className="w-1/2 h-4 bg-slate-200 dark:bg-slate-800 rounded-lg" />
+      <div className="w-full h-24 bg-slate-200 dark:bg-slate-800 rounded-2xl mt-4" />
       <div className="flex gap-4 w-full mt-4">
-        <div className="flex-1 h-12 bg-slate-200 dark:bg-slate-850 rounded-xl" />
-        <div className="flex-1 h-12 bg-slate-200 dark:bg-slate-850 rounded-xl" />
+        <div className="flex-1 h-12 bg-slate-200 dark:bg-slate-800 rounded-xl" />
+        <div className="flex-1 h-12 bg-slate-200 dark:bg-slate-800 rounded-xl" />
       </div>
     </div>
   );
@@ -49,10 +49,10 @@ export function ErrorState({ error, onRetry }) {
 export function EmptyState({ onReset }) {
   return (
     <div className="w-full max-w-[400px] bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800/60 rounded-3xl p-8 shadow-xl flex flex-col items-center text-center gap-4">
-      <div className="w-14 h-14 bg-slate-100 dark:bg-slate-850 text-slate-500 rounded-full flex items-center justify-center font-bold text-lg">
+      <div className="w-14 h-14 bg-slate-100 dark:bg-slate-800 text-slate-500 rounded-full flex items-center justify-center font-bold text-lg">
         🏁
       </div>
-      <h3 className="text-lg font-bold text-slate-800 dark:text-slate-150">Fim da fila!</h3>
+      <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">Fim da fila!</h3>
       <p className="text-sm text-slate-500 dark:text-slate-400">
         Não restam mais recomendações para o filtro ativo. Mude os filtros ou clique abaixo para recomeçar.
       </p>

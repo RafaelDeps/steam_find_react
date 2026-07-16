@@ -22,13 +22,14 @@ export function useGameSwiper() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   
-  const [page, setPage] = useState(1);
+  // Declaring 'currentPage' state as required
+  const [currentPage, setCurrentPage] = useState(1);
   const [filters, setFilters] = useState({ genres: '', platforms: '', freeToPlay: false });
   const [seedId, setSeedId] = useState(null);
 
-  // Use refs to keep track of values inside async calls to avoid state stale closure issues
-  const stateRef = useRef({ queue, page, isLoading, filters, seedId, likedGames, dislikedGames });
-  stateRef.current = { queue, page, isLoading, filters, seedId, likedGames, dislikedGames };
+  // Keep stateRef in sync to prevent closures from capturing stale values inside async calls
+  const stateRef = useRef({ queue, currentPage, isLoading, filters, seedId, likedGames, dislikedGames });
+  stateRef.current = { queue, currentPage, isLoading, filters, seedId, likedGames, dislikedGames };
 
   // Persist liked/disliked lists in localStorage
   useEffect(() => {
@@ -50,7 +51,7 @@ export function useGameSwiper() {
     setError(null);
 
     try {
-      const queryPage = resetQueue ? 1 : current.page;
+      const queryPage = resetQueue ? 1 : current.currentPage;
       let newGames = [];
 
       if (current.seedId) {
@@ -58,7 +59,6 @@ export function useGameSwiper() {
         newGames = await fetchSimilarGames(current.seedId);
       } else {
         // Query general list with filters
-        // Free-to-play: RAWG tags value is 'free-to-play'
         const tagFilter = current.filters.freeToPlay ? 'free-to-play' : '';
         newGames = await fetchGames({
           page: queryPage,
@@ -78,7 +78,7 @@ export function useGameSwiper() {
       const filteredNewGames = newGames.filter(g => !swipedIds.has(g.id));
 
       setQueue(prev => (resetQueue ? filteredNewGames : [...prev, ...filteredNewGames]));
-      setPage(prev => (resetQueue ? 2 : prev + 1));
+      setCurrentPage(prev => (resetQueue ? 2 : prev + 1));
     } catch (err) {
       console.error(err);
       setError(err.message || 'An error occurred while loading recommendations.');
@@ -87,49 +87,71 @@ export function useGameSwiper() {
     }
   };
 
-  // Initial load
+  // Initial load when filters or seedId changes
   useEffect(() => {
     loadMoreGames(true);
   }, [filters, seedId]);
 
   // Load more when queue size drops below threshold
   useEffect(() => {
-    if (queue.length > 0 && queue.length < 5 && !isLoading) {
+    if (queue.length < 5 && currentPage > 1 && !isLoading && !error && !seedId) {
       loadMoreGames(false);
     }
-  }, [queue.length, isLoading]);
+  }, [queue.length, currentPage, isLoading, error, seedId]);
 
   /**
    * Remove active card and append to corresponding swipe history list
-   * @param {string} direction - 'like' or 'dislike'
    */
   const swipe = (direction) => {
-    if (queue.length === 0) return;
+    setQueue(prev => {
+      if (prev.length === 0) return prev;
+      const game = prev[0];
 
-    const game = queue[0];
-    const rest = queue.slice(1);
-    setQueue(rest);
+      if (direction === 'like') {
+        setLikedGames(history => {
+          if (history.some(g => g.id === game.id)) return history;
+          return [game, ...history];
+        });
+      } else {
+        setDislikedGames(history => {
+          if (history.some(g => g.id === game.id)) return history;
+          return [game, ...history];
+        });
+      }
 
-    if (direction === 'like') {
-      setLikedGames(prev => [game, ...prev]);
-    } else {
-      setDislikedGames(prev => [game, ...prev]);
-    }
+      return prev.slice(1);
+    });
   };
 
   /**
    * Set filter configuration parameters and reset swiper stack
    */
   const applyFilters = (newFilters) => {
-    setSeedId(null); // Clear similarity seed when applying standard filters
+    setSeedId(null);
     setFilters(newFilters);
+  };
+
+  /**
+   * Reset filters, re-define currentPage to 1, clear queue, and trigger fresh fetch
+   */
+  const resetFilters = () => {
+    setQueue([]);
+    setCurrentPage(1);
+
+    const alreadyDefault = filters.genres === '' && filters.platforms === '' && !filters.freeToPlay && seedId === null;
+    if (alreadyDefault) {
+      loadMoreGames(true);
+    } else {
+      setSeedId(null);
+      setFilters({ genres: '', platforms: '', freeToPlay: false });
+    }
   };
 
   /**
    * Set a specific game as seed for recommendations and reset queue
    */
   const pivotSearch = (gameId) => {
-    setFilters({ genres: '', platforms: '', freeToPlay: false }); // Reset standard filters
+    setFilters({ genres: '', platforms: '', freeToPlay: false });
     setSeedId(gameId);
   };
 
@@ -139,8 +161,16 @@ export function useGameSwiper() {
   const clearHistory = () => {
     setLikedGames([]);
     setDislikedGames([]);
-    // Reload queue
-    loadMoreGames(true);
+    setQueue([]);
+    setCurrentPage(1);
+
+    const alreadyDefault = filters.genres === '' && filters.platforms === '' && !filters.freeToPlay && seedId === null;
+    if (alreadyDefault) {
+      loadMoreGames(true);
+    } else {
+      setSeedId(null);
+      setFilters({ genres: '', platforms: '', freeToPlay: false });
+    }
   };
 
   return {
@@ -152,8 +182,9 @@ export function useGameSwiper() {
     error,
     swipe,
     applyFilters,
+    resetFilters,
     pivotSearch,
     clearHistory,
-    retryFetch: () => loadMoreGames(true)
+    retryFetch: () => loadMoreGames(false)
   };
 }

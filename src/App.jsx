@@ -18,6 +18,7 @@ function Dashboard() {
     error, 
     swipe, 
     applyFilters, 
+    resetFilters,
     pivotSearch, 
     clearHistory,
     retryFetch 
@@ -55,6 +56,13 @@ function Dashboard() {
   const handleFilterSubmit = (e) => {
     e.preventDefault();
     applyFilters({ genres: genre, platforms: platform, freeToPlay });
+  };
+
+  const handleResetFilters = () => {
+    setGenre('');
+    setPlatform('');
+    setFreeToPlay(false);
+    resetFilters();
   };
 
   const handlePivot = (gameId) => {
@@ -121,11 +129,20 @@ function Dashboard() {
         <section className="lg:col-span-8 flex flex-col items-center justify-center min-h-[580px]">
           {isLoading && activeCard === null ? (
             <LoadingSkeleton />
-          ) : error ? (
-            <ErrorState error={error} onRetry={retryFetch} />
           ) : activeCard ? (
             /* Active Swiper Stack */
-            <div className="flex flex-col items-center w-full">
+            <div className="flex flex-col items-center w-full relative">
+              {error && (
+                <div className="w-full max-w-[400px] mb-4 p-3.5 bg-red-500/10 dark:bg-red-500/20 border border-red-500/20 text-red-600 dark:text-red-400 rounded-2xl flex items-center justify-between text-xs font-semibold shadow-sm">
+                  <span className="flex-1 pr-2">Erro ao carregar mais recomendações em segundo plano.</span>
+                  <button 
+                    onClick={retryFetch} 
+                    className="px-2.5 py-1 bg-red-600 hover:bg-red-500 text-white rounded-lg transition-colors font-bold whitespace-nowrap active:scale-[0.98] focus-ring"
+                  >
+                    Tentar Novamente
+                  </button>
+                </div>
+              )}
               <GameCard 
                 game={activeCard} 
                 onPivot={handlePivot} 
@@ -138,8 +155,10 @@ function Dashboard() {
                 disabled={isSwiping}
               />
             </div>
+          ) : error ? (
+            <ErrorState error={error} onRetry={retryFetch} />
           ) : (
-            <EmptyState onReset={() => applyFilters({ genres: '', platforms: '', freeToPlay: false })} />
+            <EmptyState onReset={handleResetFilters} />
           )}
         </section>
       </main>
@@ -214,6 +233,21 @@ function Dashboard() {
           </div>
         </div>
       )}
+
+      {/* Footer link to MkDocs */}
+      <footer className="bg-white dark:bg-slate-900 border-t border-slate-200/50 dark:border-slate-800/50 py-6 px-6 mt-12 text-center text-xs text-slate-500 dark:text-slate-400">
+        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
+          <p>© 2026 SteamFind. Desenvolvido com React, Vite e Tailwind CSS.</p>
+          <a
+            href="./docs/index.html"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold transition-all focus-ring"
+          >
+            <span>Documentação</span>
+          </a>
+        </div>
+      </footer>
     </div>
   );
 }

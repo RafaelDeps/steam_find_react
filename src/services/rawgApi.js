@@ -5,8 +5,9 @@ const getApiKey = () => {
   const key = import.meta.env.VITE_RAWG_API_KEY;
   if (!key) {
     console.warn('VITE_RAWG_API_KEY is not defined. Please add it to your .env file.');
+    return '';
   }
-  return key;
+  return key.trim();
 };
 
 /**

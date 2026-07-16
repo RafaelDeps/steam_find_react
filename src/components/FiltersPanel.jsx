@@ -53,7 +53,7 @@ export default function FiltersPanel({
 
   return (
     <div className="bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800/60 p-6 rounded-3xl shadow-sm">
-      <h2 className="text-lg font-extrabold mb-5 flex items-center gap-2 text-slate-850 dark:text-slate-100">
+      <h2 className="text-lg font-extrabold mb-5 flex items-center gap-2 text-slate-800 dark:text-slate-100">
         <SlidersHorizontal size={18} className="text-indigo-500" />
         <span>Filtros de Busca</span>
       </h2>
@@ -113,7 +113,7 @@ export default function FiltersPanel({
         </div>
 
         {/* Free to Play Checkbox */}
-        <div className="flex items-center justify-between py-3.5 border-t border-b border-slate-100 dark:border-slate-850">
+        <div className="flex items-center justify-between py-3.5 border-t border-b border-slate-100 dark:border-slate-800">
           <label 
             htmlFor="free-to-play-checkbox" 
             className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider cursor-pointer select-none"

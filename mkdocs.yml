@@ -1,0 +1,7 @@
+site_name: Steam Find React
+site_description: Tinder-style Game Recommendation Web Application utilizing the RAWG API.
+theme:
+  name: readthedocs
+
+nav:
+  - Principal: index.md
