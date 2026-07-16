@@ -9,3 +9,5 @@ build/
 .env.production.local
 .DS_Store
 Thumbs.db
+venv/
+site/
