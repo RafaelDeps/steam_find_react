@@ -1,0 +1,56 @@
+name: Deploy to GitHub Pages
+
+on:
+  # Dispara a automação toda vez que houver um push na branch main
+  push:
+    branches: ["main", "master"]
+
+# Permissões necessárias para o robô escrever no GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 1. Checkout do código fonte
+        uses: actions/checkout@v4
+
+      - name: 2. Configurar Node.js (React/Vite)
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: 3. Instalar dependências e Gerar Build (React)
+        run: |
+          npm install
+          npm run build
+        env:
+          # Injeta a chave secreta que você salvou no repositório
+          VITE_RAWG_API_KEY: ${{ secrets.VITE_RAWG_API_KEY }}
+
+      - name: 4. Configurar Python (MkDocs)
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.x
+
+      - name: 5. Instalar e Gerar Build (MkDocs)
+        run: |
+          pip install mkdocs
+          mkdocs build
+          # Copia a pasta do MkDocs para dentro da pasta do Vite
+          cp -r site dist/docs
+
+      - name: 6. Configurar o GitHub Pages
+        uses: actions/configure-pages@v4
+
+      - name: 7. Fazer Upload dos arquivos estáticos
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: './dist'
+
+      - name: 8. Publicar no GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
